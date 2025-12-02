@@ -27,7 +27,7 @@ func main() {
 	MOD := 100
 	answer := 0
 
-	file, err := os.Open("inputs/2025/day-1.txt")
+	file, err := os.Open("2025/day-1/input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
