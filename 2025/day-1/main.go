@@ -26,7 +26,7 @@ func main() {
 	dial := 50
 	MOD := 100
 	answer := 0
-	rotation := 0
+	answer_part_2 := 0
 
 	file, err := os.Open("2025/day-1/input.txt")
 	if err != nil {
@@ -38,31 +38,43 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		movement, distance := parseInput(line)
+
+		full_rotations := distance / MOD
+		remainingDistance := mod(distance, MOD)
+		answer_part_2 += full_rotations
+
 		switch movement {
 		case "L":
-			delta := dial - distance
+			delta := dial - remainingDistance
 			dial = mod(delta, MOD)
 
 			if delta < 0 {
-				rotation++
+				// Edge case: Dial was at 0 before moving left, so that is not a real rotation
+				if dial+remainingDistance != MOD {
+					answer_part_2++
+				}
+			} else if dial == 0 {
+				answer_part_2++
 			}
 		case "R":
-			delta := dial + distance
+			delta := dial + remainingDistance
 			dial = mod(delta, MOD)
 
 			if delta > MOD {
-				rotation++
+				// Edge case: Dial was at MOD before moving right, so that is not a real rotation
+				if dial-remainingDistance != 0 {
+					answer_part_2++
+				}
+			} else if dial == 0 {
+				answer_part_2++
 			}
 		}
 
 		if dial == 0 {
 			answer++
 		}
-
-		div := distance / MOD
-		rotation += div
 	}
 
 	fmt.Println("Part 1: ", answer)
-	fmt.Println("Part 2: ", rotation)
+	fmt.Println("Part 2: ", answer_part_2)
 }
