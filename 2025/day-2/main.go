@@ -12,4 +12,3 @@ func main() {
 	}
 	defer file.Close()
 }
-

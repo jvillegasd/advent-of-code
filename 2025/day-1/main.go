@@ -26,6 +26,7 @@ func main() {
 	dial := 50
 	MOD := 100
 	answer := 0
+	rotation := 0
 
 	file, err := os.Open("2025/day-1/input.txt")
 	if err != nil {
@@ -39,15 +40,29 @@ func main() {
 		movement, distance := parseInput(line)
 		switch movement {
 		case "L":
-			dial = mod(dial-distance, MOD)
+			delta := dial - distance
+			dial = mod(delta, MOD)
+
+			if delta < 0 {
+				rotation++
+			}
 		case "R":
-			dial = mod(dial+distance, MOD)
+			delta := dial + distance
+			dial = mod(delta, MOD)
+
+			if delta > MOD {
+				rotation++
+			}
 		}
 
 		if dial == 0 {
-			answer = answer + 1
+			answer++
 		}
+
+		div := distance / MOD
+		rotation += div
 	}
 
-	fmt.Println(answer)
+	fmt.Println("Part 1: ", answer)
+	fmt.Println("Part 2: ", rotation)
 }
