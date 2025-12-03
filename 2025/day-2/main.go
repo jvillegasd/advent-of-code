@@ -23,17 +23,17 @@ func findInvalidIDsSum(start, end string) int64 {
 	endInt, _ := strconv.Atoi(end)
 
 	var halfStart int
-	if len(start)/2 == 0 {
-		halfStart, _ = strconv.Atoi(start)
-	} else {
+	if len(start)/2 > 0 {
 		halfStart, _ = strconv.Atoi(start[:len(start)/2])
+	} else {
+		halfStart, _ = strconv.Atoi(start)
 	}
 
 	var halfEnd int
-	if (len(end)+1)/2 == 0 {
-		halfEnd, _ = strconv.Atoi(end)
-	} else {
+	if (len(end)+1)/2 > 0 {
 		halfEnd, _ = strconv.Atoi(end[:(len(end)+1)/2])
+	} else {
+		halfEnd, _ = strconv.Atoi(end)
 	}
 
 	for i := halfStart; i <= halfEnd; i++ {
