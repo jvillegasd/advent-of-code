@@ -46,8 +46,48 @@ func findInvalidIDsSum(start, end string) int64 {
 	return sum
 }
 
+func chunkString(s string, chunkSize int) []string {
+	var chunks []string
+	for i := 0; i < len(s); i += chunkSize {
+		end := i + chunkSize
+		if end > len(s) {
+			end = len(s)
+		}
+		chunks = append(chunks, s[i:end])
+	}
+	return chunks
+}
+
+func areChunksEqual(chunks []string) bool {
+	if len(chunks) <= 1 {
+		return false
+	}
+
+	firstChunk := chunks[0]
+	for i := 1; i < len(chunks); i++ {
+		if chunks[i] != firstChunk {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isInvalidID2(number int) bool {
+	numberStr := strconv.Itoa(number)
+	for i := 1; i <= len(numberStr)/2; i++ {
+		chunks := chunkString(numberStr, i)
+		if areChunksEqual(chunks) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func main() {
 	sum := int64(0)
+	sum2 := int64(0)
 	var rangeStrings []string
 
 	file, err := os.Open("2025/day-2/input.txt")
@@ -69,7 +109,16 @@ func main() {
 	for _, rangeStr := range rangeStrings {
 		start, end := parseRange(strings.TrimSpace(rangeStr))
 		sum += findInvalidIDsSum(start, end)
+
+		startInt, _ := strconv.Atoi(start)
+		endInt, _ := strconv.Atoi(end)
+		for i := startInt; i <= endInt; i++ {
+			if isInvalidID2(i) {
+				sum2 += int64(i)
+			}
+		}
 	}
 
 	fmt.Println("Part 1: ", sum)
+	fmt.Println("Part 2: ", sum2)
 }
