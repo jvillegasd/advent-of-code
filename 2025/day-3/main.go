@@ -37,8 +37,34 @@ func getMaxJoltage(line string) int {
 	return maxJoltage
 }
 
+func getMaxJoltage2(line string) int64 {
+	idx := 0
+	maxBatteryIdxs := make([]int, 12)
+	batteryBanks := parseInput(line)
+
+	for i := 0; i < len(maxBatteryIdxs); i++ {
+		maxIdx := idx
+		digitsLeft := len(maxBatteryIdxs) - 1 - i
+		for j := idx + 1; j < len(batteryBanks)-digitsLeft; j++ {
+			if batteryBanks[j] > batteryBanks[maxIdx] {
+				maxIdx = j
+			}
+		}
+		maxBatteryIdxs[i] = maxIdx
+		idx = maxIdx + 1
+	}
+
+	var resultStr string
+	for _, idx := range maxBatteryIdxs {
+		resultStr += strconv.Itoa(batteryBanks[idx])
+	}
+	resultInt, _ := strconv.ParseInt(resultStr, 10, 64)
+	return resultInt
+}
+
 func main() {
 	sum := 0
+	sum2 := int64(0)
 
 	file, err := os.Open("2025/day-3/input.txt")
 	if err != nil {
@@ -50,6 +76,7 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		sum += getMaxJoltage(line)
+		sum2 += getMaxJoltage2(line)
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -57,4 +84,5 @@ func main() {
 	}
 
 	fmt.Println("Part 1: ", sum)
+	fmt.Println("Part 2: ", sum2)
 }
