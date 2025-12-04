@@ -23,7 +23,7 @@ func getMaxJoltage(line string, size int) int64 {
 
 	for i := 0; i < size; i++ {
 		maxIdx := idx
-		digitsLeft := len(maxBatteryIdxs) - 1 - i
+		digitsLeft := size - 1 - i
 		for j := idx + 1; j < len(batteryBanks)-digitsLeft; j++ {
 			if batteryBanks[j] > batteryBanks[maxIdx] {
 				maxIdx = j
