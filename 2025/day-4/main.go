@@ -35,10 +35,8 @@ func buildRollsQueue(grid [][]rune) []Roll {
 	queue := []Roll{}
 	for i := 0; i < len(grid); i++ {
 		for j := 0; j < len(grid[i]); j++ {
-			if grid[i][j] == '@' {
-				if countAdjacentRolls(grid, i, j) < 4 {
-					queue = append(queue, Roll{i, j})
-				}
+			if grid[i][j] == '@' && countAdjacentRolls(grid, i, j) < 4 {
+				queue = append(queue, Roll{i, j})
 			}
 		}
 	}
