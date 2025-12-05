@@ -32,6 +32,7 @@ func mergeRanges(ranges []Range) []Range {
 		last := &mergedRanges[len(mergedRanges)-1]
 		current := ranges[i]
 
+		// Check of overlapping or adjacent ranges
 		if current.start <= last.end+1 {
 			if current.end > last.end {
 				last.end = current.end
