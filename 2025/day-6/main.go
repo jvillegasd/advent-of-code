@@ -100,9 +100,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// part1 := solvePart1(operationsPart1)
+	part1 := solvePart1(operationsPart1)
 	part2 := solvePart2(operationsPart2)
 
-	// fmt.Println("Part 1: ", part1)
+	fmt.Println("Part 1: ", part1)
 	fmt.Println("Part 2: ", part2)
 }
