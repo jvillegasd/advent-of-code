@@ -9,7 +9,7 @@ import (
 
 func main() {
 	count1 := 0
-	count2 := 1
+	count2 := 1 // Base timeline 'S'
 	diagram := []string{}
 
 	file, err := os.Open("2025/day-7/input.txt")
