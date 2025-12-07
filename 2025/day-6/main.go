@@ -14,21 +14,31 @@ func applyOperation(operation string, a []int) int64 {
 		return int64(0)
 	}
 
-	result := int64(a[0])
-	for i := 1; i < len(a); i++ {
-		switch operation {
-		case "*":
-			result *= int64(a[i])
-		case "+":
-			result += int64(a[i])
-		}
+	switch operation {
+	case "*":
+		return int64(a[0]) * int64(a[1]) * int64(a[2]) * int64(a[3])
+	case "+":
+		return int64(a[0]) + int64(a[1]) + int64(a[2]) + int64(a[3])
 	}
-	return result
+	return int64(0)
+}
+
+func solvePart1(operations [][]string) int64 {
+	sum := int64(0)
+	for i := 0; i < len(operations[0]); i++ {
+		a, _ := strconv.Atoi(operations[0][i])
+		b, _ := strconv.Atoi(operations[1][i])
+		c, _ := strconv.Atoi(operations[2][i])
+		d, _ := strconv.Atoi(operations[3][i])
+
+		numbers := []int{a, b, c, d}
+		sum += int64(applyOperation(operations[4][i], numbers))
+	}
+	return sum
 }
 
 func main() {
-	sum := int64(0)
-	operations := [][]string{}
+	operationsPart1 := [][]string{}
 
 	file, err := os.Open("2025/day-6/input.txt")
 	if err != nil {
@@ -40,21 +50,14 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		// Use Fields to split on whitespace and remove empty strings
-		operations = append(operations, strings.Fields(line))
+		operationsPart1 = append(operationsPart1, strings.Fields(line))
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < len(operations[0]); i++ {
-		a, _ := strconv.Atoi(operations[0][i])
-		b, _ := strconv.Atoi(operations[1][i])
-		c, _ := strconv.Atoi(operations[2][i])
-		d, _ := strconv.Atoi(operations[3][i])
-		numbers := []int{a, b, c, d}
-		sum += int64(applyOperation(operations[4][i], numbers))
-	}
+	part1 := solvePart1(operationsPart1)
 
-	fmt.Println("Part 1: ", sum)
+	fmt.Println("Part 1: ", part1)
 }
