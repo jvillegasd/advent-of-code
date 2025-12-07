@@ -38,27 +38,26 @@ func main() {
 	}
 
 	currentBeams := lastBeams
-	currentBeansTimelines := lastBeansTimelines
 	for i := 1; i < len(diagram); i++ {
 		for j := 0; j < len(diagram[i]); j++ {
 			if diagram[i][j] == '^' && lastBeams[j] {
-				currentBeams[j] = false
 				count1++
-				count2 += currentBeansTimelines[j]
+				count2 += lastBeansTimelines[j]
 
 				if j+1 < len(diagram[i]) {
 					currentBeams[j+1] = true
-					currentBeansTimelines[j+1] += currentBeansTimelines[j]
+					lastBeansTimelines[j+1] += lastBeansTimelines[j]
 				}
 				if j-1 >= 0 {
 					currentBeams[j-1] = true
-					currentBeansTimelines[j-1] += currentBeansTimelines[j]
+					lastBeansTimelines[j-1] += lastBeansTimelines[j]
 				}
-				currentBeansTimelines[j] = 0
+
+				currentBeams[j] = false
+				lastBeansTimelines[j] = 0
 			}
 		}
 		lastBeams = currentBeams
-		lastBeansTimelines = currentBeansTimelines
 	}
 
 	fmt.Println("Part 1: ", count1)
