@@ -9,16 +9,24 @@ import (
 	"strings"
 )
 
-func solvePart1(operations [][]string) int64 {
-	strategies := map[string]func([]int) int64{
-		"*": func(a []int) int64 {
-			return int64(a[0]) * int64(a[1]) * int64(a[2]) * int64(a[3])
-		},
-		"+": func(a []int) int64 {
-			return int64(a[0]) + int64(a[1]) + int64(a[2]) + int64(a[3])
-		},
-	}
+var strategies = map[string]func([]int) int64{
+	"*": func(a []int) int64 {
+		result := int64(1)
+		for _, num := range a {
+			result *= int64(num)
+		}
+		return result
+	},
+	"+": func(a []int) int64 {
+		result := int64(0)
+		for _, num := range a {
+			result += int64(num)
+		}
+		return result
+	},
+}
 
+func solvePart1(operations [][]string) int64 {
 	sum := int64(0)
 	for i := 0; i < len(operations[0]); i++ {
 		a, _ := strconv.Atoi(operations[0][i])
@@ -34,6 +42,39 @@ func solvePart1(operations [][]string) int64 {
 
 func solvePart2(operations []string) int64 {
 	sum := int64(0)
+
+	operationsIdx := len(operations) - 1
+	for i := 0; i < len(operations[0]); i++ {
+		operation := string(operations[operationsIdx][i])
+		if operation != "*" && operation != "+" {
+			continue
+		}
+
+		currentIdx := i
+		numbers := []int{}
+		for currentIdx < len(operations[0]) {
+			newNumber := ""
+			isAllBlank := true
+			for j := 0; j < len(operations)-1; j++ {
+				if operations[j][currentIdx] == ' ' {
+					continue
+				}
+				isAllBlank = false
+				newNumber += string(operations[j][currentIdx])
+			}
+
+			if isAllBlank {
+				break
+			}
+
+			number, _ := strconv.Atoi(newNumber)
+			numbers = append(numbers, number)
+			currentIdx++
+		}
+
+		sum += strategies[operation](numbers)
+	}
+
 	return sum
 }
 
@@ -59,9 +100,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	part1 := solvePart1(operationsPart1)
+	// part1 := solvePart1(operationsPart1)
 	part2 := solvePart2(operationsPart2)
 
-	fmt.Println("Part 1: ", part1)
+	// fmt.Println("Part 1: ", part1)
 	fmt.Println("Part 2: ", part2)
 }
