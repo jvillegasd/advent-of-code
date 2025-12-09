@@ -85,7 +85,7 @@ func parsePoint(line string) Point {
 	return Point{x, y, z}
 }
 
-func solvePart1(n int, points []Point, edges []Edge) int {
+func solvePart1(n int, edges []Edge) int {
 	totalConnections := 0
 	uf := initUnionFind(n)
 	circuitSizes := []int{}
@@ -163,7 +163,7 @@ func main() {
 		return edges[i].Distance < edges[j].Distance
 	})
 
-	part1 := solvePart1(n, points, edges)
+	part1 := solvePart1(n, edges)
 	part2 := solvePart2(n, points, edges)
 
 	fmt.Println("Part 1: ", part1)
