@@ -85,13 +85,55 @@ func parsePoint(line string) Point {
 	return Point{x, y, z}
 }
 
+func solvePart1(n int, points []Point, edges []Edge) int {
+	totalConnections := 0
+	uf := initUnionFind(n)
+	circuitSizes := []int{}
+	seenRoots := make(map[int]bool)
+
+	for _, edge := range edges {
+		if totalConnections >= 1000 {
+			break
+		}
+
+		uf.union(edge.From, edge.To)
+		totalConnections++
+	}
+
+	for i := 0; i < n; i++ {
+		root := uf.find(i)
+		if !seenRoots[root] {
+			seenRoots[root] = true
+			circuitSizes = append(circuitSizes, uf.getSize(root))
+		}
+	}
+
+	sort.Slice(circuitSizes, func(i, j int) bool {
+		return circuitSizes[i] > circuitSizes[j]
+	})
+
+	return circuitSizes[0] * circuitSizes[1] * circuitSizes[2]
+}
+
+func solvePart2(n int, points []Point, edges []Edge) int {
+	uf := initUnionFind(n)
+	var lastMergingEdge Edge
+
+	for _, edge := range edges {
+		if uf.union(edge.From, edge.To) {
+			lastMergingEdge = edge
+			if uf.getSize(0) == n {
+				break
+			}
+		}
+	}
+
+	return points[lastMergingEdge.From].X * points[lastMergingEdge.To].X
+}
+
 func main() {
-	part1 := 1
 	edges := []Edge{}
 	points := []Point{}
-	circuitSizes := []int{}
-	totalConnections := 0
-	seenRoots := make(map[int]bool)
 
 	file, err := os.Open("2025/day-8/input.txt")
 	if err != nil {
@@ -121,29 +163,9 @@ func main() {
 		return edges[i].Distance < edges[j].Distance
 	})
 
-	uf := initUnionFind(n)
-	for _, edge := range edges {
-		if totalConnections >= 1000 {
-			break
-		}
-
-		uf.union(edge.From, edge.To)
-		totalConnections++
-	}
-
-	for i := 0; i < n; i++ {
-		root := uf.find(i)
-		if !seenRoots[root] {
-			seenRoots[root] = true
-			circuitSizes = append(circuitSizes, uf.getSize(root))
-		}
-	}
-
-	sort.Slice(circuitSizes, func(i, j int) bool {
-		return circuitSizes[i] > circuitSizes[j]
-	})
-
-	part1 = circuitSizes[0] * circuitSizes[1] * circuitSizes[2]
+	part1 := solvePart1(n, points, edges)
+	part2 := solvePart2(n, points, edges)
 
 	fmt.Println("Part 1: ", part1)
+	fmt.Println("Part 2: ", part2)
 }
