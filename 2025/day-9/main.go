@@ -120,29 +120,6 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	return intersections%2 != 0
 }
 
-func getRectangleBounds(point1 Point, point2 Point) Line {
-	minX := point1.X
-	maxX := point2.X
-	if minX > maxX {
-		minX, maxX = maxX, minX
-	}
-
-	minY := point1.Y
-	maxY := point2.Y
-	if minY > maxY {
-		minY, maxY = maxY, minY
-	}
-
-	return Line{
-		MinX:  minX,
-		MaxX:  maxX,
-		MinY:  minY,
-		MaxY:  maxY,
-		Start: point1,
-		End:   point2,
-	}
-}
-
 func polygonIntersectsRectangle(bounds Line, h_lines []Line, v_lines []Line) bool {
 	// Check if any horizontal line intersects the rectangle interior
 	for _, line := range h_lines {
@@ -200,7 +177,7 @@ func solvePart2(points []Point) int {
 		for j := i + 1; j < n; j++ {
 			point1 := points[i]
 			point2 := points[j]
-			bounds := getRectangleBounds(point1, point2)
+			bounds := buildLine(point1, point2)
 
 			area := (bounds.MaxX - bounds.MinX + 1) * (bounds.MaxY - bounds.MinY + 1)
 			if area <= maxArea {
