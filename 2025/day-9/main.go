@@ -139,9 +139,9 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 
 		// Horizontal line intersects rectangle interior if:
 		// 1. Line's Y is strictly inside rectangle's Y range
-		// 2. Line's X range overlaps with rectangle's X range
+		// 2. Line's X range overlaps with rectangle's X range (strict overlap)
 		if line.Start.Y > bounds.MinY && line.Start.Y < bounds.MaxY {
-			if !(lineMaxX < bounds.MinX || lineMinX > bounds.MaxX) {
+			if lineMinX < bounds.MaxX && lineMaxX > bounds.MinX {
 				return true
 			}
 		}
@@ -158,9 +158,9 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 
 		// Vertical line intersects rectangle interior if:
 		// 1. Line's X is strictly inside rectangle's X range
-		// 2. Line's Y range overlaps with rectangle's Y range
+		// 2. Line's Y range overlaps with rectangle's Y range (strict overlap)
 		if line.Start.X > bounds.MinX && line.Start.X < bounds.MaxX {
-			if !(lineMaxY < bounds.MinY || lineMinY > bounds.MaxY) {
+			if lineMinY < bounds.MaxY && lineMaxY > bounds.MinY {
 				return true
 			}
 		}
