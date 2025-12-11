@@ -13,6 +13,10 @@ type Point struct {
 	X, Y int
 }
 
+type Line struct {
+	Start, End Point
+}
+
 func parseInput(line string) Point {
 	parts := strings.Split(line, ",")
 	x, _ := strconv.Atoi(parts[0])
@@ -41,6 +45,74 @@ func solvePart1(points []Point) int {
 			if area > maxArea {
 				maxArea = area
 			}
+		}
+	}
+
+	return maxArea
+}
+
+func isPointOnBoundary(point Point, h_lines []Line, v_lines []Line) bool {
+	// Check if the point is on a horizontal line
+	for _, line := range h_lines {
+		if point.Y == line.Start.Y && point.X >= line.Start.X && point.X <= line.End.X {
+			return true
+		}
+	}
+
+	// Check if the point is on a vertical line
+	for _, line := range v_lines {
+		if point.X == line.Start.X && point.Y >= line.Start.Y && point.Y <= line.End.Y {
+			return true
+		}
+	}
+	return false
+}
+
+func isPointInsidePolygon(point Point, polygon []Line) bool {
+	// Ray casting algorithm
+	n := len(polygon)
+	intersections := 0
+
+	for i := 0; i < n; i++ {
+		line := polygon[i]
+
+		// Check if the ray intersects the edge
+		if (line.Start.Y <= point.Y && line.End.Y > point.Y) || (line.Start.Y > point.Y && line.End.Y <= point.Y) {
+			// Calculate the x-coordinate where the ray crosses the edge's line
+			intersectionX := line.Start.X + (point.Y-line.Start.Y)*(line.End.X-line.Start.X)/(line.End.Y-line.Start.Y)
+
+			// If the intersection is to the right of the point, count it
+			if intersectionX > point.X {
+				intersections++
+			}
+		}
+	}
+
+	return intersections%2 != 0
+}
+
+func isValidPoint(point Point, polygon []Line, h_lines []Line, v_lines []Line) bool {
+	return isPointInsidePolygon(point, polygon) || isPointOnBoundary(point, h_lines, v_lines)
+}
+
+func solvePart2(points []Point) int {
+	maxArea := 0
+	n := len(points)
+	polygon := []Line{}
+	v_lines := []Line{}
+	h_lines := []Line{}
+
+	// Build the polygon and track vertical and horizontal lines
+	for i := 0; i < n; i++ {
+		point1 := points[i]
+		point2 := points[(i+1)%n]
+		line := Line{point1, point2}
+		polygon = append(polygon, line)
+
+		if point1.X == point2.X {
+			v_lines = append(v_lines, line)
+		} else {
+			h_lines = append(h_lines, line)
 		}
 	}
 
