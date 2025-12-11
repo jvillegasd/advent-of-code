@@ -111,10 +111,7 @@ func getRectangleBounds(point1 Point, point2 Point) RectangleBounds {
 	return RectangleBounds{minX, maxX, minY, maxY}
 }
 
-func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_lines []Line) bool {
-	// Determine rectangle boundaries
-	bounds := getRectangleBounds(point1, point2)
-
+func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines []Line) bool {
 	// Check if any horizontal line intersects the rectangle
 	for _, line := range h_lines {
 		// Normalize line endpoints (ensure Start.X <= End.X)
@@ -181,6 +178,32 @@ func solvePart2(points []Point) int {
 		}
 	}
 
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			point1 := points[i]
+			point2 := points[j]
+			bounds := getRectangleBounds(point1, point2)
+
+			area := (bounds.MaxX - bounds.MinX + 1) * (bounds.MaxY - bounds.MinY + 1)
+			if area <= maxArea {
+				continue
+			}
+
+			if polygonIntersectsRectangle(bounds, h_lines, v_lines) {
+				continue
+			}
+
+			cornerPoint1 := Point{bounds.MinX, bounds.MaxY}
+			cornerPoint2 := Point{bounds.MaxX, bounds.MinY}
+
+			isValid := isValidPoint(cornerPoint1, polygon, h_lines, v_lines) && isValidPoint(cornerPoint2, polygon, h_lines, v_lines)
+			if !isValid {
+				continue
+			}
+
+			maxArea = area
+		}
+	}
 	return maxArea
 }
 
@@ -198,5 +221,8 @@ func main() {
 	}
 
 	part1 := solvePart1(points)
+	part2 := solvePart2(points)
+
 	fmt.Println("Part 1: ", part1)
+	fmt.Println("Part 2: ", part2)
 }
