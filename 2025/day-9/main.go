@@ -13,9 +13,13 @@ type Point struct {
 	X, Y int
 }
 
-type Line struct {
+type BoundingBox struct {
 	MinX, MaxX, MinY, MaxY int
-	Start, End             Point // Original points for ray casting
+}
+
+type Line struct {
+	BoundingBox BoundingBox
+	Start, End  Point // Original points for ray casting
 }
 
 func parseInput(line string) Point {
@@ -60,10 +64,12 @@ func buildLine(point1, point2 Point) Line {
 	maxY := max(point1.Y, point2.Y)
 
 	return Line{
-		MinX:  minX,
-		MaxX:  maxX,
-		MinY:  minY,
-		MaxY:  maxY,
+		BoundingBox: BoundingBox{
+			MinX: minX,
+			MaxX: maxX,
+			MinY: minY,
+			MaxY: maxY,
+		},
 		Start: point1,
 		End:   point2,
 	}
@@ -72,14 +78,14 @@ func buildLine(point1, point2 Point) Line {
 func isPointOnBoundary(point Point, h_lines []Line, v_lines []Line) bool {
 	// Check if the point is on a horizontal line
 	for _, line := range h_lines {
-		if point.Y == line.MinY && point.X >= line.MinX && point.X <= line.MaxX {
+		if point.Y == line.BoundingBox.MinY && point.X >= line.BoundingBox.MinX && point.X <= line.BoundingBox.MaxX {
 			return true
 		}
 	}
 
 	// Check if the point is on a vertical line
 	for _, line := range v_lines {
-		if point.X == line.MinX && point.Y >= line.MinY && point.Y <= line.MaxY {
+		if point.X == line.BoundingBox.MinX && point.Y >= line.BoundingBox.MinY && point.Y <= line.BoundingBox.MaxY {
 			return true
 		}
 	}
@@ -101,7 +107,7 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 
 		// Check if the point's y-coordinate is within the
 		// edge's y-range and if the point is to the left of the edge
-		if point.Y > line.MinY && point.Y <= line.MaxY && point.X <= line.MaxX {
+		if point.Y > line.BoundingBox.MinY && point.Y <= line.BoundingBox.MaxY && point.X <= line.BoundingBox.MaxX {
 			// Calculate the x-coordinate of the intersection of the edge with a horizontal line through the point
 			intersectionX := line.Start.X + (point.Y-line.Start.Y)*(line.End.X-line.Start.X)/(line.End.Y-line.Start.Y)
 
@@ -115,14 +121,14 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	return intersections%2 == 1
 }
 
-func polygonIntersectsRectangle(bounds Line, h_lines []Line, v_lines []Line) bool {
+func polygonIntersectsRectangle(rect BoundingBox, h_lines []Line, v_lines []Line) bool {
 	// Check if any horizontal line intersects the rectangle interior
 	for _, line := range h_lines {
 		// Horizontal line intersects rectangle interior if:
 		// 1. Line's Y is strictly inside rectangle's Y range
 		// 2. Line's X range overlaps with rectangle's X range (strict overlap)
-		if line.MinY > bounds.MinY && line.MinY < bounds.MaxY {
-			if line.MinX < bounds.MaxX && line.MaxX > bounds.MinX {
+		if line.BoundingBox.MinY > rect.MinY && line.BoundingBox.MinY < rect.MaxY {
+			if line.BoundingBox.MinX < rect.MaxX && line.BoundingBox.MaxX > rect.MinX {
 				return true
 			}
 		}
@@ -133,8 +139,8 @@ func polygonIntersectsRectangle(bounds Line, h_lines []Line, v_lines []Line) boo
 		// Vertical line intersects rectangle interior if:
 		// 1. Line's X is strictly inside rectangle's X range
 		// 2. Line's Y range overlaps with rectangle's Y range (strict overlap)
-		if line.MinX > bounds.MinX && line.MinX < bounds.MaxX {
-			if line.MinY < bounds.MaxY && line.MaxY > bounds.MinY {
+		if line.BoundingBox.MinX > rect.MinX && line.BoundingBox.MinX < rect.MaxX {
+			if line.BoundingBox.MinY < rect.MaxY && line.BoundingBox.MaxY > rect.MinY {
 				return true
 			}
 		}
@@ -172,19 +178,19 @@ func solvePart2(points []Point) int {
 		for j := i + 1; j < n; j++ {
 			point1 := points[i]
 			point2 := points[j]
-			bounds := buildLine(point1, point2)
+			line := buildLine(point1, point2)
 
-			area := (bounds.MaxX - bounds.MinX + 1) * (bounds.MaxY - bounds.MinY + 1)
+			area := (line.BoundingBox.MaxX - line.BoundingBox.MinX + 1) * (line.BoundingBox.MaxY - line.BoundingBox.MinY + 1)
 			if area <= maxArea {
 				continue
 			}
 
-			if polygonIntersectsRectangle(bounds, h_lines, v_lines) {
+			if polygonIntersectsRectangle(line.BoundingBox, h_lines, v_lines) {
 				continue
 			}
 
-			cornerPoint1 := Point{bounds.MinX, bounds.MaxY}
-			cornerPoint2 := Point{bounds.MaxX, bounds.MinY}
+			cornerPoint1 := Point{line.BoundingBox.MinX, line.BoundingBox.MaxY}
+			cornerPoint2 := Point{line.BoundingBox.MaxX, line.BoundingBox.MinY}
 
 			isValid := isValidPoint(cornerPoint1, polygon, h_lines, v_lines) && isValidPoint(cornerPoint2, polygon, h_lines, v_lines)
 			if !isValid {
