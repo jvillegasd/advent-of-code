@@ -58,14 +58,26 @@ func solvePart1(points []Point) int {
 func isPointOnBoundary(point Point, h_lines []Line, v_lines []Line) bool {
 	// Check if the point is on a horizontal line
 	for _, line := range h_lines {
-		if point.Y == line.Start.Y && point.X >= line.Start.X && point.X <= line.End.X {
+		// Normalize line endpoints (ensure Start.X <= End.X)
+		lineMinX := line.Start.X
+		lineMaxX := line.End.X
+		if lineMinX > lineMaxX {
+			lineMinX, lineMaxX = lineMaxX, lineMinX
+		}
+		if point.Y == line.Start.Y && point.X >= lineMinX && point.X <= lineMaxX {
 			return true
 		}
 	}
 
 	// Check if the point is on a vertical line
 	for _, line := range v_lines {
-		if point.X == line.Start.X && point.Y >= line.Start.Y && point.Y <= line.End.Y {
+		// Normalize line endpoints (ensure Start.Y <= End.Y)
+		lineMinY := line.Start.Y
+		lineMaxY := line.End.Y
+		if lineMinY > lineMaxY {
+			lineMinY, lineMaxY = lineMaxY, lineMinY
+		}
+		if point.X == line.Start.X && point.Y >= lineMinY && point.Y <= lineMaxY {
 			return true
 		}
 	}
@@ -79,6 +91,10 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 
 	for i := 0; i < n; i++ {
 		line := polygon[i]
+
+		if line.Start.Y == line.End.Y {
+			continue
+		}
 
 		// Check if the ray intersects the edge
 		if (line.Start.Y <= point.Y && line.End.Y > point.Y) || (line.Start.Y > point.Y && line.End.Y <= point.Y) {
