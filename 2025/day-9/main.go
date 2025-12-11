@@ -112,7 +112,7 @@ func getRectangleBounds(point1 Point, point2 Point) RectangleBounds {
 }
 
 func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines []Line) bool {
-	// Check if any horizontal line intersects the rectangle
+	// Check if any horizontal line intersects the rectangle interior
 	for _, line := range h_lines {
 		// Normalize line endpoints (ensure Start.X <= End.X)
 		lineMinX := line.Start.X
@@ -121,17 +121,17 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 			lineMinX, lineMaxX = lineMaxX, lineMinX
 		}
 
-		// Horizontal line intersects rectangle if:
-		// 1. Line's Y is within rectangle's Y range
+		// Horizontal line intersects rectangle interior if:
+		// 1. Line's Y is strictly inside rectangle's Y range
 		// 2. Line's X range overlaps with rectangle's X range
-		if line.Start.Y >= bounds.MinY && line.Start.Y <= bounds.MaxY {
+		if line.Start.Y > bounds.MinY && line.Start.Y < bounds.MaxY {
 			if !(lineMaxX < bounds.MinX || lineMinX > bounds.MaxX) {
 				return true
 			}
 		}
 	}
 
-	// Check if any vertical line intersects the rectangle
+	// Check if any vertical line intersects the rectangle interior
 	for _, line := range v_lines {
 		// Normalize line endpoints (ensure Start.Y <= End.Y)
 		lineMinY := line.Start.Y
@@ -140,10 +140,10 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 			lineMinY, lineMaxY = lineMaxY, lineMinY
 		}
 
-		// Vertical line intersects rectangle if:
-		// 1. Line's X is within rectangle's X range
+		// Vertical line intersects rectangle interior if:
+		// 1. Line's X is strictly inside rectangle's X range
 		// 2. Line's Y range overlaps with rectangle's Y range
-		if line.Start.X >= bounds.MinX && line.Start.X <= bounds.MaxX {
+		if line.Start.X > bounds.MinX && line.Start.X < bounds.MaxX {
 			if !(lineMaxY < bounds.MinY || lineMinY > bounds.MaxY) {
 				return true
 			}
