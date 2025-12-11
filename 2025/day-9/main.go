@@ -113,7 +113,7 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 		}
 	}
 
-	return intersections%2 != 0
+	return intersections%2 == 1
 }
 
 func polygonIntersectsRectangle(bounds Line, h_lines []Line, v_lines []Line) bool {
