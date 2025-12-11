@@ -17,6 +17,10 @@ type Line struct {
 	Start, End Point
 }
 
+type RectangleBounds struct {
+	MinX, MaxX, MinY, MaxY int
+}
+
 func parseInput(line string) Point {
 	parts := strings.Split(line, ",")
 	x, _ := strconv.Atoi(parts[0])
@@ -91,8 +95,7 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	return intersections%2 != 0
 }
 
-func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_lines []Line) bool {
-	// Determine rectangle boundaries
+func getRectangleBounds(point1 Point, point2 Point) RectangleBounds {
 	minX := point1.X
 	maxX := point2.X
 	if minX > maxX {
@@ -104,6 +107,13 @@ func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_li
 	if minY > maxY {
 		minY, maxY = maxY, minY
 	}
+
+	return RectangleBounds{minX, maxX, minY, maxY}
+}
+
+func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_lines []Line) bool {
+	// Determine rectangle boundaries
+	bounds := getRectangleBounds(point1, point2)
 
 	// Check if any horizontal line intersects the rectangle
 	for _, line := range h_lines {
@@ -117,8 +127,8 @@ func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_li
 		// Horizontal line intersects rectangle if:
 		// 1. Line's Y is within rectangle's Y range
 		// 2. Line's X range overlaps with rectangle's X range
-		if line.Start.Y >= minY && line.Start.Y <= maxY {
-			if !(lineMaxX < minX || lineMinX > maxX) {
+		if line.Start.Y >= bounds.MinY && line.Start.Y <= bounds.MaxY {
+			if !(lineMaxX < bounds.MinX || lineMinX > bounds.MaxX) {
 				return true
 			}
 		}
@@ -136,8 +146,8 @@ func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_li
 		// Vertical line intersects rectangle if:
 		// 1. Line's X is within rectangle's X range
 		// 2. Line's Y range overlaps with rectangle's Y range
-		if line.Start.X >= minX && line.Start.X <= maxX {
-			if !(lineMaxY < minY || lineMinY > maxY) {
+		if line.Start.X >= bounds.MinX && line.Start.X <= bounds.MaxX {
+			if !(lineMaxY < bounds.MinY || lineMinY > bounds.MaxY) {
 				return true
 			}
 		}
