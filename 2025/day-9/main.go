@@ -104,9 +104,10 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 			continue
 		}
 
-		// Check if the ray intersects the edge
-		if (line.Start.Y <= point.Y && line.End.Y > point.Y) || (line.Start.Y > point.Y && line.End.Y <= point.Y) {
-			// Calculate the x-coordinate where the ray crosses the edge's line
+		// Check if the point's y-coordinate is within the
+		// edge's y-range and if the point is to the left of the edge
+		if point.Y > line.MinY && point.Y <= line.MaxY && point.X <= line.MaxX {
+			// Calculate the x-coordinate of the intersection of the edge with a horizontal line through the point
 			intersectionX := line.Start.X + (point.Y-line.Start.Y)*(line.End.X-line.Start.X)/(line.End.Y-line.Start.Y)
 
 			// If the intersection is to the right of the point, count it
