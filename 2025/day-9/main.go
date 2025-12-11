@@ -100,10 +100,6 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	for i := 0; i < n; i++ {
 		line := polygon[i]
 
-		if line.Start.Y == line.End.Y {
-			continue
-		}
-
 		// Check if the point's y-coordinate is within the
 		// edge's y-range and if the point is to the left of the edge
 		if point.Y > line.MinY && point.Y <= line.MaxY && point.X <= line.MaxX {
