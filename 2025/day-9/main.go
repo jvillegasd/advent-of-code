@@ -91,6 +91,61 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	return intersections%2 != 0
 }
 
+func polygonIntersectsRectangle(point1 Point, point2 Point, h_lines []Line, v_lines []Line) bool {
+	// Determine rectangle boundaries
+	minX := point1.X
+	maxX := point2.X
+	if minX > maxX {
+		minX, maxX = maxX, minX
+	}
+
+	minY := point1.Y
+	maxY := point2.Y
+	if minY > maxY {
+		minY, maxY = maxY, minY
+	}
+
+	// Check if any horizontal line intersects the rectangle
+	for _, line := range h_lines {
+		// Normalize line endpoints (ensure Start.X <= End.X)
+		lineMinX := line.Start.X
+		lineMaxX := line.End.X
+		if lineMinX > lineMaxX {
+			lineMinX, lineMaxX = lineMaxX, lineMinX
+		}
+
+		// Horizontal line intersects rectangle if:
+		// 1. Line's Y is within rectangle's Y range
+		// 2. Line's X range overlaps with rectangle's X range
+		if line.Start.Y >= minY && line.Start.Y <= maxY {
+			if !(lineMaxX < minX || lineMinX > maxX) {
+				return true
+			}
+		}
+	}
+
+	// Check if any vertical line intersects the rectangle
+	for _, line := range v_lines {
+		// Normalize line endpoints (ensure Start.Y <= End.Y)
+		lineMinY := line.Start.Y
+		lineMaxY := line.End.Y
+		if lineMinY > lineMaxY {
+			lineMinY, lineMaxY = lineMaxY, lineMinY
+		}
+
+		// Vertical line intersects rectangle if:
+		// 1. Line's X is within rectangle's X range
+		// 2. Line's Y range overlaps with rectangle's Y range
+		if line.Start.X >= minX && line.Start.X <= maxX {
+			if !(lineMaxY < minY || lineMinY > maxY) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func isValidPoint(point Point, polygon []Line, h_lines []Line, v_lines []Line) bool {
 	return isPointInsidePolygon(point, polygon) || isPointOnBoundary(point, h_lines, v_lines)
 }
@@ -105,7 +160,7 @@ func solvePart2(points []Point) int {
 	// Build the polygon and track vertical and horizontal lines
 	for i := 0; i < n; i++ {
 		point1 := points[i]
-		point2 := points[(i+1)%n]
+		point2 := points[(i+1)%n] // Wrap around to the first point
 		line := Line{point1, point2}
 		polygon = append(polygon, line)
 
