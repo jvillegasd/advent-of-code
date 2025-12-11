@@ -53,17 +53,11 @@ func solvePart1(points []Point) int {
 }
 
 func buildLine(point1, point2 Point) Line {
-	minX := point1.X
-	maxX := point2.X
-	if minX > maxX {
-		minX, maxX = maxX, minX
-	}
-
-	minY := point1.Y
-	maxY := point2.Y
-	if minY > maxY {
-		minY, maxY = maxY, minY
-	}
+	// 2D axis-aligned bounding box (AABB)
+	minX := min(point1.X, point2.X)
+	maxX := max(point1.X, point2.X)
+	minY := min(point1.Y, point2.Y)
+	maxY := max(point1.Y, point2.Y)
 
 	return Line{
 		MinX:  minX,
