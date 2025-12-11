@@ -17,7 +17,8 @@ type Line struct {
 	Start, End Point
 }
 
-type RectangleBounds struct {
+// NormalizedLine represents a line with pre-normalized bounds
+type NormalizedLine struct {
 	MinX, MaxX, MinY, MaxY int
 }
 
@@ -55,29 +56,38 @@ func solvePart1(points []Point) int {
 	return maxArea
 }
 
-func isPointOnBoundary(point Point, h_lines []Line, v_lines []Line) bool {
+func normalizeLine(line Line) NormalizedLine {
+	minX := line.Start.X
+	maxX := line.End.X
+	if minX > maxX {
+		minX, maxX = maxX, minX
+	}
+
+	minY := line.Start.Y
+	maxY := line.End.Y
+	if minY > maxY {
+		minY, maxY = maxY, minY
+	}
+
+	return NormalizedLine{
+		MinX: minX,
+		MaxX: maxX,
+		MinY: minY,
+		MaxY: maxY,
+	}
+}
+
+func isPointOnBoundary(point Point, h_lines []NormalizedLine, v_lines []NormalizedLine) bool {
 	// Check if the point is on a horizontal line
 	for _, line := range h_lines {
-		// Normalize line endpoints (ensure Start.X <= End.X)
-		lineMinX := line.Start.X
-		lineMaxX := line.End.X
-		if lineMinX > lineMaxX {
-			lineMinX, lineMaxX = lineMaxX, lineMinX
-		}
-		if point.Y == line.Start.Y && point.X >= lineMinX && point.X <= lineMaxX {
+		if point.Y == line.MinY && point.X >= line.MinX && point.X <= line.MaxX {
 			return true
 		}
 	}
 
 	// Check if the point is on a vertical line
 	for _, line := range v_lines {
-		// Normalize line endpoints (ensure Start.Y <= End.Y)
-		lineMinY := line.Start.Y
-		lineMaxY := line.End.Y
-		if lineMinY > lineMaxY {
-			lineMinY, lineMaxY = lineMaxY, lineMinY
-		}
-		if point.X == line.Start.X && point.Y >= lineMinY && point.Y <= lineMaxY {
+		if point.X == line.MinX && point.Y >= line.MinY && point.Y <= line.MaxY {
 			return true
 		}
 	}
@@ -111,7 +121,7 @@ func isPointInsidePolygon(point Point, polygon []Line) bool {
 	return intersections%2 != 0
 }
 
-func getRectangleBounds(point1 Point, point2 Point) RectangleBounds {
+func getRectangleBounds(point1 Point, point2 Point) NormalizedLine {
 	minX := point1.X
 	maxX := point2.X
 	if minX > maxX {
@@ -124,24 +134,17 @@ func getRectangleBounds(point1 Point, point2 Point) RectangleBounds {
 		minY, maxY = maxY, minY
 	}
 
-	return RectangleBounds{minX, maxX, minY, maxY}
+	return NormalizedLine{minX, maxX, minY, maxY}
 }
 
-func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines []Line) bool {
+func polygonIntersectsRectangle(bounds NormalizedLine, h_lines []NormalizedLine, v_lines []NormalizedLine) bool {
 	// Check if any horizontal line intersects the rectangle interior
 	for _, line := range h_lines {
-		// Normalize line endpoints (ensure Start.X <= End.X)
-		lineMinX := line.Start.X
-		lineMaxX := line.End.X
-		if lineMinX > lineMaxX {
-			lineMinX, lineMaxX = lineMaxX, lineMinX
-		}
-
 		// Horizontal line intersects rectangle interior if:
 		// 1. Line's Y is strictly inside rectangle's Y range
 		// 2. Line's X range overlaps with rectangle's X range (strict overlap)
-		if line.Start.Y > bounds.MinY && line.Start.Y < bounds.MaxY {
-			if lineMinX < bounds.MaxX && lineMaxX > bounds.MinX {
+		if line.MinY > bounds.MinY && line.MinY < bounds.MaxY {
+			if line.MinX < bounds.MaxX && line.MaxX > bounds.MinX {
 				return true
 			}
 		}
@@ -149,18 +152,11 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 
 	// Check if any vertical line intersects the rectangle interior
 	for _, line := range v_lines {
-		// Normalize line endpoints (ensure Start.Y <= End.Y)
-		lineMinY := line.Start.Y
-		lineMaxY := line.End.Y
-		if lineMinY > lineMaxY {
-			lineMinY, lineMaxY = lineMaxY, lineMinY
-		}
-
 		// Vertical line intersects rectangle interior if:
 		// 1. Line's X is strictly inside rectangle's X range
 		// 2. Line's Y range overlaps with rectangle's Y range (strict overlap)
-		if line.Start.X > bounds.MinX && line.Start.X < bounds.MaxX {
-			if lineMinY < bounds.MaxY && lineMaxY > bounds.MinY {
+		if line.MinX > bounds.MinX && line.MinX < bounds.MaxX {
+			if line.MinY < bounds.MaxY && line.MaxY > bounds.MinY {
 				return true
 			}
 		}
@@ -169,7 +165,7 @@ func polygonIntersectsRectangle(bounds RectangleBounds, h_lines []Line, v_lines 
 	return false
 }
 
-func isValidPoint(point Point, polygon []Line, h_lines []Line, v_lines []Line) bool {
+func isValidPoint(point Point, polygon []Line, h_lines []NormalizedLine, v_lines []NormalizedLine) bool {
 	return isPointInsidePolygon(point, polygon) || isPointOnBoundary(point, h_lines, v_lines)
 }
 
@@ -177,20 +173,21 @@ func solvePart2(points []Point) int {
 	maxArea := 0
 	n := len(points)
 	polygon := []Line{}
-	v_lines := []Line{}
-	h_lines := []Line{}
+	v_lines := []NormalizedLine{}
+	h_lines := []NormalizedLine{}
 
-	// Build the polygon and track vertical and horizontal lines
+	// Build the polygon and track vertical and horizontal lines (pre-normalized)
 	for i := 0; i < n; i++ {
 		point1 := points[i]
 		point2 := points[(i+1)%n] // Wrap around to the first point
 		line := Line{point1, point2}
 		polygon = append(polygon, line)
 
+		normalized := normalizeLine(line)
 		if point1.X == point2.X {
-			v_lines = append(v_lines, line)
+			v_lines = append(v_lines, normalized)
 		} else {
-			h_lines = append(h_lines, line)
+			h_lines = append(h_lines, normalized)
 		}
 	}
 
