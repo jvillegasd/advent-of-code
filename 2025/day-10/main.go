@@ -62,9 +62,11 @@ func parseInput(line string) Machine {
 
 func bfs(machine Machine) int {
 	stack := []Node{}
+	visited := make(map[string]bool)
 
 	emptyDiagram := strings.Replace(machine.lightDiagram, "#", ".", -1)
 	stack = append(stack, Node{Diagram: emptyDiagram, Steps: 0})
+	visited[emptyDiagram] = true
 
 	for len(stack) > 0 {
 		current := stack[0]
@@ -85,7 +87,10 @@ func bfs(machine Machine) int {
 				}
 			}
 
-			stack = append(stack, Node{Diagram: newDiagram, Steps: current.Steps + 1})
+			if !visited[newDiagram] {
+				stack = append(stack, Node{Diagram: newDiagram, Steps: current.Steps + 1})
+				visited[newDiagram] = true
+			}
 		}
 	}
 
