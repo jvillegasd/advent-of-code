@@ -19,6 +19,11 @@ type Machine struct {
 	joltage      []int
 }
 
+type Node struct {
+	Diagram string
+	Steps   int
+}
+
 func parseInput(line string) Machine {
 	parts := strings.Split(line, " ")
 
@@ -55,7 +60,58 @@ func parseInput(line string) Machine {
 	return Machine{lightDiagram, buttons, joltageInts}
 }
 
+func bfs(machine Machine) int {
+	stack := []Node{}
+
+	emptyDiagram := strings.Replace(machine.lightDiagram, "#", ".", -1)
+	stack = append(stack, Node{Diagram: emptyDiagram, Steps: 0})
+
+	for len(stack) > 0 {
+		current := stack[0]
+		stack = stack[1:]
+
+		if current.Diagram == machine.lightDiagram {
+			return current.Steps
+		}
+
+		for _, button := range machine.buttons {
+			newDiagram := current.Diagram
+			for _, idx := range button.indices {
+				switch current.Diagram[idx] {
+				case '.':
+					newDiagram = newDiagram[:idx] + "#" + newDiagram[idx+1:]
+				case '#':
+					newDiagram = newDiagram[:idx] + "." + newDiagram[idx+1:]
+				}
+			}
+
+			stack = append(stack, Node{Diagram: newDiagram, Steps: current.Steps + 1})
+		}
+	}
+
+	return -1
+}
+
+func solvePart1(machines []Machine) int {
+	total := 0
+	machineSteps := []int{}
+
+	for _, machine := range machines {
+		steps := bfs(machine)
+		if steps != -1 {
+			machineSteps = append(machineSteps, steps)
+		}
+	}
+
+	for _, steps := range machineSteps {
+		total += steps
+	}
+	return total
+}
+
 func main() {
+	machines := []Machine{}
+
 	file, err := os.Open("2025/day-10/input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -66,10 +122,13 @@ func main() {
 	for scanner.Scan() {
 		line := scanner.Text()
 		machine := parseInput(line)
-		fmt.Println(machine)
+		machines = append(machines, machine)
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	part1 := solvePart1(machines)
+	fmt.Println("Part 1: ", part1)
 }
