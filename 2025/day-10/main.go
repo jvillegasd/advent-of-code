@@ -60,6 +60,7 @@ func parseInput(line string) Machine {
 	return Machine{lightDiagram, buttons, joltageInts}
 }
 
+// BFS on bitmask
 func bfs(machine Machine) int {
 	stack := []Node{}
 	visited := make(map[string]bool)
