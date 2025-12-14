@@ -32,7 +32,7 @@ Objective:
 
 import os
 
-from z3 import *
+from z3 import Optimize, Int, Sum, sat
 
 
 def parse_input(filename):
