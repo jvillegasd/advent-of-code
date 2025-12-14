@@ -9,11 +9,16 @@ import (
 	"strings"
 )
 
+type Coord struct {
+	Row int
+	Col int
+}
+
 type Shape struct {
-	Index   int
-	Pattern [][]rune
-	Width   int
-	Height  int
+	Index  int
+	Coords []Coord
+	Width  int
+	Height int
 }
 
 type Region struct {
@@ -27,51 +32,25 @@ type Input struct {
 	Regions []Region
 }
 
-func rotate90(pattern [][]rune) [][]rune {
-	if len(pattern) == 0 {
-		return pattern
-	}
-
-	height := len(pattern)
-	width := len(pattern[0])
-
-	// Create rotated pattern: width becomes height, height becomes width
-	rotated := make([][]rune, width)
-	for i := range rotated {
-		rotated[i] = make([]rune, height)
-	}
-
-	// Rotate: element at [i][j] goes to [j][height-1-i]
-	for i := 0; i < height; i++ {
-		for j := 0; j < width; j++ {
-			rotated[j][height-1-i] = pattern[i][j]
+func rotate90(coords []Coord, height int) []Coord {
+	rotated := make([]Coord, len(coords))
+	for i, c := range coords {
+		rotated[i] = Coord{
+			Row: c.Col,
+			Col: height - 1 - c.Row,
 		}
 	}
-
 	return rotated
 }
 
-func mirrorX(pattern [][]rune) [][]rune {
-	if len(pattern) == 0 {
-		return pattern
-	}
-
-	height := len(pattern)
-	width := len(pattern[0])
-
-	// Create mirrored pattern
-	mirrored := make([][]rune, height)
-	for i := range mirrored {
-		mirrored[i] = make([]rune, width)
-	}
-
-	// Mirror: element at [i][j] goes to [i][width-1-j]
-	for i := 0; i < height; i++ {
-		for j := 0; j < width; j++ {
-			mirrored[i][width-1-j] = pattern[i][j]
+func mirrorX(coords []Coord, width int) []Coord {
+	mirrored := make([]Coord, len(coords))
+	for i, c := range coords {
+		mirrored[i] = Coord{
+			Row: c.Row,
+			Col: width - 1 - c.Col,
 		}
 	}
-
 	return mirrored
 }
 
@@ -115,11 +94,21 @@ func parseInput(filename string) *Input {
 			}
 			height := len(pattern)
 
+			// Extract coordinates of '#' cells
+			coords := []Coord{}
+			for i, row := range pattern {
+				for j, cell := range row {
+					if cell == '#' {
+						coords = append(coords, Coord{Row: i, Col: j})
+					}
+				}
+			}
+
 			input.Shapes = append(input.Shapes, Shape{
-				Index:   index,
-				Pattern: pattern,
-				Width:   width,
-				Height:  height,
+				Index:  index,
+				Coords: coords,
+				Width:  width,
+				Height: height,
 			})
 		} else if strings.Contains(line, "x") {
 			parts := strings.Split(line, ": ")
