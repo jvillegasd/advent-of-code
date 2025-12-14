@@ -27,6 +27,54 @@ type Input struct {
 	Regions []Region
 }
 
+func rotate90(pattern [][]rune) [][]rune {
+	if len(pattern) == 0 {
+		return pattern
+	}
+
+	height := len(pattern)
+	width := len(pattern[0])
+
+	// Create rotated pattern: width becomes height, height becomes width
+	rotated := make([][]rune, width)
+	for i := range rotated {
+		rotated[i] = make([]rune, height)
+	}
+
+	// Rotate: element at [i][j] goes to [j][height-1-i]
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			rotated[j][height-1-i] = pattern[i][j]
+		}
+	}
+
+	return rotated
+}
+
+func mirrorX(pattern [][]rune) [][]rune {
+	if len(pattern) == 0 {
+		return pattern
+	}
+
+	height := len(pattern)
+	width := len(pattern[0])
+
+	// Create mirrored pattern
+	mirrored := make([][]rune, height)
+	for i := range mirrored {
+		mirrored[i] = make([]rune, width)
+	}
+
+	// Mirror: element at [i][j] goes to [i][width-1-j]
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			mirrored[i][width-1-j] = pattern[i][j]
+		}
+	}
+
+	return mirrored
+}
+
 func parseInput(filename string) *Input {
 	file, err := os.Open(filename)
 	if err != nil {
