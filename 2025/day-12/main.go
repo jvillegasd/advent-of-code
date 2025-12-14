@@ -198,6 +198,50 @@ func parseInput(filename string) *Input {
 	return input
 }
 
+func dfs(shapeIndex int, requiredShapes []int, width int, height int, shapes []Shape, visited []bool) bool {
+	if shapeIndex == len(requiredShapes) {
+		return true
+	}
+
+	shape := shapes[requiredShapes[shapeIndex]]
+	for _, variant := range shape.Variants {
+		for i := 0; i < width; i++ {
+			for j := 0; j < height; j++ {
+				isFitting := true
+				placed := []Coord{}
+				for _, coord := range variant {
+					newRow := i + coord.Row
+					newCol := j + coord.Col
+
+					if newRow < 0 || newRow >= height || newCol < 0 || newCol >= width {
+						isFitting = false
+						break
+					}
+					if visited[newRow*width+newCol] {
+						isFitting = false
+						break
+					}
+					placed = append(placed, Coord{Row: newRow, Col: newCol})
+				}
+				if !isFitting {
+					continue
+				}
+				for _, coord := range placed {
+					visited[coord.Row*width+coord.Col] = true
+				}
+				if dfs(shapeIndex+1, requiredShapes, width, height, shapes, visited) {
+					return true
+				}
+				for _, coord := range placed {
+					visited[coord.Row*width+coord.Col] = false
+				}
+			}
+		}
+	}
+
+	return false
+}
+
 func canFit(region Region, shapes []Shape) bool {
 	totalArea := 0
 	requiredShapes := []int{}
@@ -217,14 +261,19 @@ func canFit(region Region, shapes []Shape) bool {
 	}
 
 	visited := make([]bool, region.Width*region.Height)
-
-	return false
+	return dfs(0, requiredShapes, region.Width, region.Height, shapes, visited)
 }
 
 func main() {
+	part1 := 0
 	input := parseInput("2025/day-12/input.txt")
-	fmt.Println(input)
 
-	fmt.Println("Part 1:", 0)
+	for _, region := range input.Regions {
+		if canFit(region, input.Shapes) {
+			part1++
+		}
+	}
+
+	fmt.Println("Part 1:", part1)
 	fmt.Println("Part 2:", 0)
 }
