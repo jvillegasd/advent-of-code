@@ -1,4 +1,34 @@
 #!/usr/bin/env python3
+"""
+Advent of Code 2025 - Day 10 (Part 2): Joltage Configuration
+
+This solution uses the z3-solver constraint satisfaction and optimization library
+to solve a linear system with integer constraints.
+
+Problem Summary:
+---------------
+Each machine has:
+- A set of buttons, where each button affects specific joltage counters
+- Target joltage values that need to be reached for each counter
+- Each button press increases all affected counters by 1
+
+Goal: Find the minimum number of total button presses needed to configure all
+      machines to their target joltage levels.
+
+Solution Approach:
+-----------------
+This is a constrained optimization problem that can be formulated as:
+
+Variables:
+    x_i = number of times button i is pressed (non-negative integer)
+
+Constraints:
+    For each counter j: Σ(x_i where button i affects counter j) = target_j
+    All x_i >= 0
+
+Objective:
+    Minimize Σ(x_i) (total button presses)
+"""
 
 import os
 
