@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 
 from z3 import *
 
@@ -34,7 +33,7 @@ def parse_input(filename):
     return machines
 
 
-def solve_machine(machine):
+def solve_machine(machine: dict) -> int:
     """
     Solve a single machine using z3.
     Returns minimum button presses needed, or -1 if impossible.
@@ -75,18 +74,14 @@ def solve_machine(machine):
         return -1
 
 
-def solve_part2(machines, verbose=False):
+def solve_part2(machines: list[dict]) -> int:
     """Solve part 2 for all machines."""
     total = 0
 
-    for i, machine in enumerate(machines):
+    for machine in machines:
         result = solve_machine(machine)
         if result >= 0:
             total += result
-            if verbose:
-                print(f"Machine {i + 1}: {result} presses")
-        else:
-            print(f"Machine {i + 1}: FAILED")
 
     return total
 
@@ -94,17 +89,11 @@ def solve_part2(machines, verbose=False):
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(script_dir, "input.txt")
-    verbose = False
-
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-    if len(sys.argv) > 2 and sys.argv[2] == "-v":
-        verbose = True
 
     machines = parse_input(filename)
 
-    part2 = solve_part2(machines, verbose=verbose)
-    print(f"\nPart 2: {part2}")
+    part2 = solve_part2(machines)
+    print(f"Part 2: {part2}")
 
 
 if __name__ == "__main__":
