@@ -18,18 +18,14 @@ func parseInput(line string) (string, []string) {
 	return node, outputs
 }
 
-func dfs(graph Graph, node string, visited map[string]bool) int {
+func dfs(graph Graph, node string) int {
 	if node == "out" {
 		return 1
 	}
 
 	paths := 0
-	visited[node] = true
-
 	for _, neighbor := range graph[node] {
-		if !visited[neighbor] {
-			paths += dfs(graph, neighbor, visited)
-		}
+		paths += dfs(graph, neighbor)
 	}
 	return paths
 }
@@ -55,6 +51,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	part1 := dfs(graph, "you", make(map[string]bool))
+	part1 := dfs(graph, "you")
 	fmt.Println("Part 1: ", part1)
 }
