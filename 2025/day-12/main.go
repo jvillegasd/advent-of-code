@@ -15,8 +15,8 @@ type Coord struct {
 }
 
 type Shape struct {
-	Index  int
-	Coords []Coord
+	Index    int
+	Variants [][]Coord
 }
 
 type Region struct {
@@ -102,18 +102,15 @@ func normalize(coords []Coord) []Coord {
 	return normalized
 }
 
-func generateVariants(shape Shape) []Shape {
-	variants := []Shape{}
+func generateVariants(coords []Coord) [][]Coord {
+	variants := [][]Coord{}
 
-	bases := [][]Coord{shape.Coords, mirrorX(shape.Coords)}
+	bases := [][]Coord{coords, mirrorX(coords)}
 	for _, baseCoords := range bases {
 		current := baseCoords
 		for i := 0; i < 4; i++ {
 			normalized := normalize(current)
-			variants = append(variants, Shape{
-				Index:  shape.Index,
-				Coords: normalized,
-			})
+			variants = append(variants, normalized)
 			current = rotate90(current)
 		}
 	}
@@ -165,14 +162,12 @@ func parseInput(filename string) *Input {
 				}
 			}
 
+			variants := generateVariants(coords)
 			shape := Shape{
-				Index:  index,
-				Coords: coords,
+				Index:    index,
+				Variants: variants,
 			}
-
-			// Generate all variants and add them
-			variants := generateVariants(shape)
-			input.Shapes = append(input.Shapes, variants...)
+			input.Shapes = append(input.Shapes, shape)
 		} else if strings.Contains(line, "x") {
 			parts := strings.Split(line, ": ")
 			dims := strings.Split(parts[0], "x")
