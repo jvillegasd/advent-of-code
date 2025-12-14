@@ -205,8 +205,8 @@ func dfs(shapeIndex int, requiredShapes []int, width int, height int, shapes []S
 
 	shape := shapes[requiredShapes[shapeIndex]]
 	for _, variant := range shape.Variants {
-		for i := 0; i < width; i++ {
-			for j := 0; j < height; j++ {
+		for i := 0; i < height; i++ {
+			for j := 0; j < width; j++ {
 				isFitting := true
 				placed := []Coord{}
 				for _, coord := range variant {
