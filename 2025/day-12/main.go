@@ -16,6 +16,7 @@ type Coord struct {
 
 type Shape struct {
 	Index    int
+	Area     int
 	Variants [][]Coord
 }
 
@@ -165,6 +166,7 @@ func parseInput(filename string) *Input {
 			variants := generateVariants(coords)
 			shape := Shape{
 				Index:    index,
+				Area:     len(coords),
 				Variants: variants,
 			}
 			input.Shapes = append(input.Shapes, shape)
@@ -194,6 +196,29 @@ func parseInput(filename string) *Input {
 	}
 
 	return input
+}
+
+func canFit(region Region, shapes []Shape) bool {
+	totalArea := 0
+	requiredShapes := []int{}
+	for shapeIndex, quantity := range region.Quantities {
+		for i := 0; i < quantity; i++ {
+			requiredShapes = append(requiredShapes, shapeIndex)
+		}
+		totalArea += quantity * shapes[shapeIndex].Area
+	}
+
+	if len(requiredShapes) == 0 {
+		return true
+	}
+
+	if totalArea > region.Width*region.Height {
+		return false
+	}
+
+	visited := make([]bool, region.Width*region.Height)
+
+	return false
 }
 
 func main() {
