@@ -37,13 +37,17 @@ func dfs(graph Graph, node string) int {
 }
 
 func dfs2(graph Graph, node string, dac bool, fft bool, memo map[memoKey]int) int {
-	// Check if result is already cached
 	key := memoKey{node, dac, fft}
 	if val, exists := memo[key]; exists {
 		return val
 	}
 
-	if node == "out" {
+	switch node {
+	case "dac":
+		dac = true
+	case "fft":
+		fft = true
+	case "out":
 		if dac && fft {
 			memo[key] = 1
 			return 1
@@ -53,16 +57,8 @@ func dfs2(graph Graph, node string, dac bool, fft bool, memo map[memoKey]int) in
 	}
 
 	paths := 0
-	isDac := false
-	isFft := false
 	for _, neighbor := range graph[node] {
-		switch neighbor {
-		case "dac":
-			isDac = true
-		case "fft":
-			isFft = true
-		}
-		paths += dfs2(graph, neighbor, isDac, isFft, memo)
+		paths += dfs2(graph, neighbor, dac, fft, memo)
 	}
 
 	memo[key] = paths
