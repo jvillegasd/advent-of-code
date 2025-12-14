@@ -17,8 +17,6 @@ type Coord struct {
 type Shape struct {
 	Index  int
 	Coords []Coord
-	Width  int
-	Height int
 }
 
 type Region struct {
@@ -32,23 +30,45 @@ type Input struct {
 	Regions []Region
 }
 
-func rotate90(coords []Coord, height int) []Coord {
+func rotate90(coords []Coord) []Coord {
+	if len(coords) == 0 {
+		return coords
+	}
+
+	maxRow := coords[0].Row
+	for _, c := range coords {
+		if c.Row > maxRow {
+			maxRow = c.Row
+		}
+	}
+
 	rotated := make([]Coord, len(coords))
 	for i, c := range coords {
 		rotated[i] = Coord{
 			Row: c.Col,
-			Col: height - 1 - c.Row,
+			Col: maxRow - c.Row,
 		}
 	}
 	return rotated
 }
 
-func mirrorX(coords []Coord, width int) []Coord {
+func mirrorX(coords []Coord) []Coord {
+	if len(coords) == 0 {
+		return coords
+	}
+
+	maxCol := coords[0].Col
+	for _, c := range coords {
+		if c.Col > maxCol {
+			maxCol = c.Col
+		}
+	}
+
 	mirrored := make([]Coord, len(coords))
 	for i, c := range coords {
 		mirrored[i] = Coord{
 			Row: c.Row,
-			Col: width - 1 - c.Col,
+			Col: maxCol - c.Col,
 		}
 	}
 	return mirrored
@@ -59,7 +79,6 @@ func normalize(coords []Coord) []Coord {
 		return coords
 	}
 
-	// Find minimum row and column
 	minRow := coords[0].Row
 	minCol := coords[0].Col
 	for _, c := range coords {
@@ -81,6 +100,25 @@ func normalize(coords []Coord) []Coord {
 	}
 
 	return normalized
+}
+
+func generateVariants(shape Shape) []Shape {
+	variants := []Shape{}
+
+	bases := [][]Coord{shape.Coords, mirrorX(shape.Coords)}
+	for _, baseCoords := range bases {
+		current := baseCoords
+		for i := 0; i < 4; i++ {
+			normalized := normalize(current)
+			variants = append(variants, Shape{
+				Index:  shape.Index,
+				Coords: normalized,
+			})
+			current = rotate90(current)
+		}
+	}
+
+	return variants
 }
 
 func parseInput(filename string) *Input {
@@ -117,12 +155,6 @@ func parseInput(filename string) *Input {
 				pattern = append(pattern, []rune(patternLine))
 			}
 
-			width := 0
-			if len(pattern) > 0 {
-				width = len(pattern[0])
-			}
-			height := len(pattern)
-
 			// Extract coordinates of '#' cells
 			coords := []Coord{}
 			for i, row := range pattern {
@@ -133,12 +165,14 @@ func parseInput(filename string) *Input {
 				}
 			}
 
-			input.Shapes = append(input.Shapes, Shape{
+			shape := Shape{
 				Index:  index,
 				Coords: coords,
-				Width:  width,
-				Height: height,
-			})
+			}
+
+			// Generate all variants and add them
+			variants := generateVariants(shape)
+			input.Shapes = append(input.Shapes, variants...)
 		} else if strings.Contains(line, "x") {
 			parts := strings.Split(line, ": ")
 			dims := strings.Split(parts[0], "x")
