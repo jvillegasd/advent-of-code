@@ -53,11 +53,12 @@ func parseInput(filename string) *Input {
 			index, _ := strconv.Atoi(parts[0])
 
 			pattern := [][]rune{}
-			for i := 0; i < 3; i++ {
-				if !scanner.Scan() {
-					log.Fatalf("unexpected end of file while reading shape %d", index)
+			for scanner.Scan() {
+				patternLine := scanner.Text()
+				if patternLine == "" {
+					break
 				}
-				pattern = append(pattern, []rune(scanner.Text()))
+				pattern = append(pattern, []rune(patternLine))
 			}
 
 			width := 0
