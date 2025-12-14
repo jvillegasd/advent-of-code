@@ -54,6 +54,35 @@ func mirrorX(coords []Coord, width int) []Coord {
 	return mirrored
 }
 
+func normalize(coords []Coord) []Coord {
+	if len(coords) == 0 {
+		return coords
+	}
+
+	// Find minimum row and column
+	minRow := coords[0].Row
+	minCol := coords[0].Col
+	for _, c := range coords {
+		if c.Row < minRow {
+			minRow = c.Row
+		}
+		if c.Col < minCol {
+			minCol = c.Col
+		}
+	}
+
+	// Translate coordinates so minimum is at (0, 0)
+	normalized := make([]Coord, len(coords))
+	for i, c := range coords {
+		normalized[i] = Coord{
+			Row: c.Row - minRow,
+			Col: c.Col - minCol,
+		}
+	}
+
+	return normalized
+}
+
 func parseInput(filename string) *Input {
 	file, err := os.Open(filename)
 	if err != nil {
